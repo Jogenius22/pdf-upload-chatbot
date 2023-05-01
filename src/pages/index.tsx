@@ -4,24 +4,25 @@ import {
   useEffect,
   type ChangeEvent,
   type FormEvent,
-  type KeyboardEvent,
-} from "react";
-import styles from "@/styles/Home.module.css";
-import { type Message } from "~/types/chat";
-import Image from "next/image";
-import ReactMarkdown from "react-markdown";
-import { type Document } from "langchain/document";
-import Layout from "~/components/layouts/main";
-import LoadingDots from "~/components/atoms/LoadingDots";
+  type KeyboardEvent
+} from 'react';
+import styles from '@/styles/Home.module.css';
+import { type Message } from '~/types/chat';
+import Image from 'next/image';
+import ReactMarkdown from 'react-markdown';
+import { type Document } from 'langchain/document';
+import Layout from '~/components/layouts/main';
+import LoadingDots from '~/components/atoms/LoadingDots';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
-} from "~/components/atoms/Accordion";
+  AccordionTrigger
+} from '~/components/atoms/Accordion';
+import { api } from '~/utils/api';
 
 export default function Home() {
-  const [query, setQuery] = useState<string>("");
+  const [query, setQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [messageState, setMessageState] = useState<{
@@ -32,13 +33,15 @@ export default function Home() {
   }>({
     messages: [
       {
-        message: "Hi, what would you like to learn about this document?",
-        type: "apiMessage",
+        message: 'Hi, what would you like to learn about this document?',
+        type: 'apiMessage',
       },
     ],
     history: [],
   });
   const [uploadedFile, setUploadedFile] = useState<File | undefined>();
+  
+  const { mutateAsync, isLoading, isError } = api.chat.getResponse.useMutation();
 
   const { messages, history } = messageState;
 
@@ -56,7 +59,7 @@ export default function Home() {
     setError(null);
 
     if (!query) {
-      alert("Please input a question");
+      alert('Please input a question');
       return;
     }
 
@@ -67,31 +70,33 @@ export default function Home() {
       messages: [
         ...state.messages,
         {
-          type: "userMessage",
+          type: 'userMessage',
           message: question,
         },
       ],
     }));
 
     setLoading(true);
-    setQuery("");
+    setQuery('');
 
     try {
       // append the file to the form data
       const formData = new FormData();
       if (uploadedFile) {
-        formData.append("file", uploadedFile);
+        formData.append('file', uploadedFile);
       }
       // also append question and history
-      formData.append("question", question);
-      formData.append("history", JSON.stringify(history));
+      formData.append('question', question);
+      formData.append('history', JSON.stringify(history));
 
-      const response = await fetch("/api/chat", {
-        method: "POST",
+      const res = await mutateAsync(formData);
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
         body: formData,
       });
       const data = await response.json();
-      console.log("data", data);
+      console.log('data', data);
 
       if (data.error) {
         setError(data.error);
@@ -101,7 +106,7 @@ export default function Home() {
           messages: [
             ...state.messages,
             {
-              type: "apiMessage",
+              type: 'apiMessage',
               message: data.text,
               sourceDocs: data.sourceDocuments,
             },
@@ -109,7 +114,7 @@ export default function Home() {
           history: [...state.history, [question, data.text]],
         }));
       }
-      console.log("messageState", messageState);
+      console.log('messageState', messageState);
 
       setLoading(false);
 
@@ -117,8 +122,8 @@ export default function Home() {
       messageListRef.current?.scrollTo(0, messageListRef.current.scrollHeight);
     } catch (error) {
       setLoading(false);
-      setError("An error occurred while fetching the data. Please try again.");
-      console.log("error", error);
+      setError('An error occurred while fetching the data. Please try again.');
+      console.log('error', error);
     }
   }
 
@@ -126,10 +131,10 @@ export default function Home() {
   // TODO: fix all this typing mess
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && query) {
+    if (e.key === 'Enter' && query) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
-    } else if (e.key == "Enter") {
+    } else if (e.key == 'Enter') {
       e.preventDefault();
     }
   };
@@ -149,11 +154,10 @@ export default function Home() {
           <h1 className="text-center text-3xl font-bold leading-[1.1] tracking-tighter">
             {uploadedFile && uploadedFile.name ? (
               <span className="text-blue-600">
-                Chat about the uploaded{" "}
-                <span className="underline">{uploadedFile.name}</span> file
+                Chat about the uploaded <span className="underline">{uploadedFile.name}</span> file
               </span>
             ) : (
-              "Chat about any uploaded document"
+              'Chat about any uploaded document'
             )}
           </h1>
           <div className="pl-4">
@@ -170,30 +174,27 @@ export default function Home() {
               htmlFor="file"
               className={`
               flex w-1/4 items-center 
-              justify-center px-4 py-2 ${
-                !canUploadAttachment ? "cursor-not-allowed" : "cursor-pointer"
-              }
+              justify-center px-4 py-2 ${!canUploadAttachment ? 'cursor-not-allowed' : 'cursor-pointer'}
               rounded-md border border-transparent bg-blue-600 text-sm 
-              font-medium text-white shadow-sm ${
-                !canUploadAttachment ? "hover:bg-gray-600" : "hover:bg-blue-900"
-              }
+              font-medium text-white shadow-sm ${!canUploadAttachment ? 'hover:bg-gray-600' : 'hover:bg-blue-900'}
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
             >
               Upload a document
             </label>
             {uploadedFile && uploadedFile.name ? (
-              <p className="mt-2 text-sm text-gray-500 underline">
-                {uploadedFile.name} uploaded
-              </p>
+              <p className="mt-2 text-sm text-gray-500 underline">{uploadedFile.name} uploaded</p>
             ) : null}
           </div>
           <main className={styles.main}>
             <div className={styles.cloud}>
-              <div ref={messageListRef} className={styles.messagelist}>
+              <div
+                ref={messageListRef}
+                className={styles.messagelist}
+              >
                 {messages.map((message, index) => {
                   let icon;
                   let className;
-                  if (message.type === "apiMessage") {
+                  if (message.type === 'apiMessage') {
                     icon = (
                       <Image
                         key={index}
@@ -220,18 +221,14 @@ export default function Home() {
                     );
                     // The latest message sent by the user will be animated while waiting for a response
                     className =
-                      loading && index === messages.length - 1
-                        ? styles.usermessagewaiting
-                        : styles.usermessage;
+                      loading && index === messages.length - 1 ? styles.usermessagewaiting : styles.usermessage;
                   }
                   return (
                     <div key={`chatMessage-${index}`}>
                       <div className={className}>
                         {icon}
                         <div className={styles.markdownanswer}>
-                          <ReactMarkdown linkTarget="_blank">
-                            {message.message}
-                          </ReactMarkdown>
+                          <ReactMarkdown linkTarget="_blank">{message.message}</ReactMarkdown>
                         </div>
                       </div>
                       {message.sourceDocs && (
@@ -244,16 +241,14 @@ export default function Home() {
                             collapsible
                             className="flex-col"
                           >
-                            {message.sourceDocs.map((doc, index) => (
-                              <div key={`messageSourceDocs-${index}`}>
-                                <AccordionItem value={`item-${index}`}>
+                            {message.sourceDocs.map((doc, idx) => (
+                              <div key={`messageSourceDocs-${idx}`}>
+                                <AccordionItem value={`item-${idx}`}>
                                   <AccordionTrigger>
-                                    <h3>Source {index + 1}</h3>
+                                    <h3>Source {idx + 1}</h3>
                                   </AccordionTrigger>
                                   <AccordionContent>
-                                    <ReactMarkdown linkTarget="_blank">
-                                      {doc.pageContent}
-                                    </ReactMarkdown>
+                                    <ReactMarkdown linkTarget="_blank">{doc.pageContent}</ReactMarkdown>
                                     <p className="mt-2">
                                       <b>Source:</b> {doc.metadata.source}
                                     </p>
@@ -283,10 +278,10 @@ export default function Home() {
                     name="userInput"
                     placeholder={
                       loading
-                        ? "Waiting for response..."
+                        ? 'Waiting for response...'
                         : uploadedFile?.name
                         ? `Ask a question about ${uploadedFile.name}`
-                        : "Upload a document first"
+                        : 'Upload a document first'
                     }
                     value={query}
                     /* dont set vals, use the form values so we do not rerender at every keystroke */
@@ -321,7 +316,7 @@ export default function Home() {
                 <p className="text-red-500">
                   {error
                     ? `${error} - Please try again later or use a different file`
-                    : "Please upload your file first to proceed"}
+                    : 'Please upload your file first to proceed'}
                 </p>
               </div>
             ) : null}
@@ -329,9 +324,11 @@ export default function Home() {
         </div>
         <footer className="m-auto p-4 text-xs">
           Powered by LangChainAI and gpt3-5. Demo built on top of
-          <a href="https://twitter.com/mayowaoshin">@mayowaoshin </a> initial
-          project and adapted by{" "}
-          <a href="https://fer-toasted.vercel.app/" className="text-blue-500">
+          <a href="https://twitter.com/mayowaoshin">@mayowaoshin </a> initial project and adapted by{' '}
+          <a
+            href="https://fer-toasted.vercel.app/"
+            className="text-blue-500"
+          >
             esponges
           </a>
         </footer>
