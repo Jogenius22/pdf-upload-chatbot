@@ -1,17 +1,24 @@
-import { useRef, useState, useEffect, type ChangeEvent } from "react";
-import Layout from "@/components/layout";
+import {
+  useRef,
+  useState,
+  useEffect,
+  type ChangeEvent,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import styles from "@/styles/Home.module.css";
-import { Message } from "@/types/chat";
+import { type Message } from "~/types/chat";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
-import LoadingDots from "@/components/ui/LoadingDots";
-import { Document } from "langchain/document";
+import { type Document } from "langchain/document";
+import Layout from "~/components/layouts/main";
+import LoadingDots from "~/components/atoms/LoadingDots";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "~/components/atoms/Accordion";
 
 export default function Home() {
   const [query, setQuery] = useState<string>("");
@@ -31,7 +38,7 @@ export default function Home() {
     ],
     history: [],
   });
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | undefined>();
 
   const { messages, history } = messageState;
 
@@ -43,7 +50,7 @@ export default function Home() {
   }, []);
 
   //handle form submission
-  async function handleSubmit(e: any) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setError(null);
@@ -116,9 +123,12 @@ export default function Home() {
   }
 
   //prevent empty submissions
-  const handleEnter = (e: any) => {
+  // TODO: fix all this typing mess
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && query) {
-      handleSubmit(e);
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
     } else if (e.key == "Enter") {
       e.preventDefault();
     }
@@ -261,7 +271,7 @@ export default function Home() {
             </div>
             <div className={styles.center}>
               <div className={styles.cloudform}>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={(e) => void handleSubmit(e)}>
                   <textarea
                     disabled={loading}
                     onKeyDown={handleEnter}
