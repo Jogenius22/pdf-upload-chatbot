@@ -13,6 +13,7 @@ export default function Home() {
   const [query, setQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | undefined>();
   const [messageState, setMessageState] = useState<{
     messages: Message[];
     pending?: string;
@@ -27,9 +28,11 @@ export default function Home() {
     ],
     history: [],
   });
-  const [uploadedFile, setUploadedFile] = useState<File | undefined>();
 
-  const { mutateAsync, mutate, isLoading, isError } = api.chat.getResponse.useMutation({
+  const messageListRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const { mutateAsync, isLoading, isError: mutateError } = api.chat.getResponse.useMutation({
     onSuccess: (data) => {
       const { sourceDocuments, text: botResponse } = data.response;
 
@@ -58,9 +61,6 @@ export default function Home() {
   });
 
   const { messages, history } = messageState;
-
-  const messageListRef = useRef<HTMLDivElement>(null);
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     textAreaRef.current?.focus();
@@ -109,11 +109,9 @@ export default function Home() {
     })();
   };
 
-  //prevent empty submissions
-  // TODO: fix all this typing mess
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && query) {
+      // todo: fix this
       handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
     } else if (e.key == 'Enter') {
       e.preventDefault();
@@ -126,7 +124,7 @@ export default function Home() {
     }
   };
 
-  const canUploadAttachment = !loading && !uploadedFile;
+  const canUploadAttachment = !isLoading && !uploadedFile;
 
   return (
     <>
@@ -292,11 +290,11 @@ export default function Home() {
                 </form>
               </div>
             </div>
-            {error || !uploadedFile ? (
+            {mutateError || !uploadedFile ? (
               <div className="rounded-md border border-red-400 p-4">
                 <p className="text-red-500">
-                  {error
-                    ? `${error} - Please try again later or use a different file`
+                  {mutateError
+                    ? `${mutateError} - Please try again later or use a different file`
                     : 'Please upload your file first to proceed'}
                 </p>
               </div>
