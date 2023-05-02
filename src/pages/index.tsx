@@ -1,11 +1,4 @@
-import {
-  useRef,
-  useState,
-  useEffect,
-  type ChangeEvent,
-  type FormEvent,
-  type KeyboardEvent
-} from 'react';
+import { useRef, useState, useEffect, type ChangeEvent, type FormEvent, type KeyboardEvent } from 'react';
 import styles from '@/styles/Home.module.css';
 import { type Message } from '~/types/chat';
 import Image from 'next/image';
@@ -13,13 +6,9 @@ import ReactMarkdown from 'react-markdown';
 import { type Document } from 'langchain/document';
 import Layout from '~/components/layouts/main';
 import LoadingDots from '~/components/atoms/LoadingDots';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '~/components/atoms/Accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '~/components/atoms/Accordion';
 import { api } from '~/utils/api';
+import { type ChainValues } from 'langchain/dist/schema';
 
 export default function Home() {
   const [query, setQuery] = useState<string>('');
@@ -40,8 +29,34 @@ export default function Home() {
     history: [],
   });
   const [uploadedFile, setUploadedFile] = useState<File | undefined>();
-  
-  const { mutateAsync, isLoading, isError } = api.chat.getResponse.useMutation();
+
+  const { mutateAsync, mutate, isLoading, isError } = api.chat.getResponse.useMutation({
+    onSuccess: (data) => {
+      const { sourceDocuments, text: botResponse } = data.response;
+
+      setMessageState((state) => ({
+        ...state,
+        messages: [
+          ...state.messages,
+          {
+            type: 'apiMessage',
+            message: botResponse,
+            sourceDocs: sourceDocuments,
+          },
+        ],
+        history: [...state.history, [state.pending ?? '', botResponse]],
+      }));
+      setLoading(false);
+
+      //scroll to bottom
+      messageListRef.current?.scrollTo(0, messageListRef.current.scrollHeight);
+    },
+    onError: (error) => {
+      setLoading(false);
+      setError('An error occurred while fetching the data. Please try again.');
+      console.log('error', error);
+    },
+  });
 
   const { messages, history } = messageState;
 
@@ -53,7 +68,7 @@ export default function Home() {
   }, []);
 
   //handle form submission
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setError(null);
@@ -79,52 +94,19 @@ export default function Home() {
     setLoading(true);
     setQuery('');
 
-    try {
-      // append the file to the form data
-      const formData = new FormData();
-      if (uploadedFile) {
-        formData.append('file', uploadedFile);
-      }
-      // also append question and history
-      formData.append('question', question);
-      formData.append('history', JSON.stringify(history));
+    const requestBody = {
+      question,
+      history: JSON.stringify(history),
+      file: {
+        fieldName: uploadedFile?.name ?? '',
+        originalFilename: uploadedFile?.name ?? '',
+        path: uploadedFile?.name ?? '',
+        headers: {},
+        size: uploadedFile?.size ?? 0,
+      },
+    };
 
-      const res = await mutateAsync(formData);
-
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await response.json();
-      console.log('data', data);
-
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setMessageState((state) => ({
-          ...state,
-          messages: [
-            ...state.messages,
-            {
-              type: 'apiMessage',
-              message: data.text,
-              sourceDocs: data.sourceDocuments,
-            },
-          ],
-          history: [...state.history, [question, data.text]],
-        }));
-      }
-      console.log('messageState', messageState);
-
-      setLoading(false);
-
-      //scroll to bottom
-      messageListRef.current?.scrollTo(0, messageListRef.current.scrollHeight);
-    } catch (error) {
-      setLoading(false);
-      setError('An error occurred while fetching the data. Please try again.');
-      console.log('error', error);
-    }
+    mutateAsync(requestBody);
   }
 
   //prevent empty submissions
