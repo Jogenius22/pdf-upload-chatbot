@@ -8,7 +8,6 @@ import Layout from '~/components/layouts/main';
 import LoadingDots from '~/components/atoms/LoadingDots';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '~/components/atoms/Accordion';
 import { api } from '~/utils/api';
-import { type ChainValues } from 'langchain/dist/schema';
 
 export default function Home() {
   const [query, setQuery] = useState<string>('');
@@ -69,52 +68,52 @@ export default function Home() {
 
   //handle form submission
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    void (async () => {
+      e.preventDefault();
+      setError(null);
+      
+      if (!query) {
+        alert('Please input a question');
+        return;
+      }
 
-    setError(null);
+      const question = query.trim();
 
-    if (!query) {
-      alert('Please input a question');
-      return;
-    }
+      setMessageState((state) => ({
+        ...state,
+        messages: [
+          ...state.messages,
+          {
+            type: 'userMessage',
+            message: question,
+          },
+        ],
+      }));
 
-    const question = query.trim();
+      setLoading(true);
+      setQuery('');
 
-    setMessageState((state) => ({
-      ...state,
-      messages: [
-        ...state.messages,
-        {
-          type: 'userMessage',
-          message: question,
+      const requestBody = {
+        question,
+        history: JSON.stringify(history),
+        file: {
+          fieldName: uploadedFile?.name ?? '',
+          originalFilename: uploadedFile?.name ?? '',
+          path: uploadedFile?.name ?? '',
+          headers: {},
+          size: uploadedFile?.size ?? 0,
         },
-      ],
-    }));
+      };
 
-    setLoading(true);
-    setQuery('');
-
-    const requestBody = {
-      question,
-      history: JSON.stringify(history),
-      file: {
-        fieldName: uploadedFile?.name ?? '',
-        originalFilename: uploadedFile?.name ?? '',
-        path: uploadedFile?.name ?? '',
-        headers: {},
-        size: uploadedFile?.size ?? 0,
-      },
-    };
-
-    mutateAsync(requestBody);
-  }
+      mutateAsync(requestBody);
+    })();
+  };
 
   //prevent empty submissions
   // TODO: fix all this typing mess
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEnter = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && query) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
     } else if (e.key == 'Enter') {
       e.preventDefault();
@@ -248,7 +247,7 @@ export default function Home() {
             </div>
             <div className={styles.center}>
               <div className={styles.cloudform}>
-                <form onSubmit={(e) => void handleSubmit(e)}>
+                <form onSubmit={handleSubmit}>
                   <textarea
                     disabled={loading}
                     onKeyDown={handleEnter}
