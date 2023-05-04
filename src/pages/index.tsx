@@ -32,7 +32,7 @@ export default function Home() {
   const messageListRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { mutateAsync, isLoading, isError: mutateError } = api.chat.getResponse.useMutation({
+  const { mutate, isLoading, isError: mutateError } = api.chat.getResponse.useMutation({
     onSuccess: (data) => {
       const { sourceDocuments, text: botResponse } = data.response;
 
@@ -105,7 +105,7 @@ export default function Home() {
         },
       };
 
-      mutateAsync(requestBody);
+      mutate(requestBody);
     })();
   };
 
