@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, type ChangeEvent, type FormEvent, type KeyboardEvent } from 'react';
-import styles from '@/styles/Home.module.css';
+import styles from '~/styles/Home.module.css';
 import { type Message } from '~/types/chat';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
