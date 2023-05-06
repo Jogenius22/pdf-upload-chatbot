@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc';
 import { makeChain } from '~/utils/langchain';
 import { getPineconeExistingNamespaces, pinecone } from '~/utils/pineconeClient';
-import { langchainPineconeUpsert } from '~/utils/pineconeFiles';
+// import { langchainPineconeUpsert } from '~/utils/pineconeFiles';
 
 interface IFormData {
   question: string;
@@ -50,7 +50,7 @@ export const chatRouter = createTRPCRouter({
           const fileExistsInDB = await getPineconeExistingNamespaces(fileName, pineconeClient);
     
           if (!fileExistsInDB) {
-            await langchainPineconeUpsert(file.path, pineconeClient, fileName);
+            // await langchainPineconeUpsert(file.path, pineconeClient, fileName);
             // const vectorizedFile = await pineconeUpsert(file.path, pineconeClient);
           }
         }

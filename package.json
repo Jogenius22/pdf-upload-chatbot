@@ -31,9 +31,7 @@
     "dotenv": "^16.0.3",
     "langchain": "0.0.55",
     "lucide-react": "^0.125.0",
-    "multiparty": "^4.2.3",
     "openai": "^3.2.1",
-    "pdf-parse": "^1.1.1",
     "react-markdown": "^8.0.5",
     "tailwind-merge": "^1.10.0"
   },
@@ -54,8 +52,6 @@
     "prisma": "^4.11.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5.0.2",
-    "@types/multiparty": "^0.0.33",
-    "@types/pdfjs-dist": "^2.10.378",
     "tsx": "^3.12.3"
   },
   "ct3aMetadata": {
