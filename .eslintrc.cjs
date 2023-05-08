@@ -34,8 +34,8 @@ const config = {
     ],
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     // newline after import - requires import-newlines plugin
-    'max-len': ['error', 120],
     'import-newlines/enforce': ['error', 2, 100],
+    'max-len': ['error', 120],
     // newline on React component props
     'react/jsx-closing-bracket-location': [
       'error',

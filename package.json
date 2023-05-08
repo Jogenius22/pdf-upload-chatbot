@@ -10,30 +10,32 @@
     "start": "next start"
   },
   "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@next-auth/prisma-adapter": "^1.0.5",
+    "@pinecone-database/pinecone": "0.0.12",
     "@prisma/client": "^4.11.0",
+    "@radix-ui/react-accordion": "^1.1.1",
     "@t3-oss/env-nextjs": "^0.2.1",
     "@tanstack/react-query": "^4.28.0",
     "@trpc/client": "^10.18.0",
     "@trpc/next": "^10.18.0",
     "@trpc/react-query": "^10.18.0",
     "@trpc/server": "^10.18.0",
-    "next": "^13.2.4",
-    "next-auth": "^4.21.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "superjson": "1.12.2",
-    "zod": "^3.21.4",
-    "@microsoft/fetch-event-source": "^2.0.1",
-    "@pinecone-database/pinecone": "0.0.12",
-    "@radix-ui/react-accordion": "^1.1.1",
+    "@types/multiparty": "^0.0.33",
     "clsx": "^1.2.1",
     "dotenv": "^16.0.3",
     "langchain": "0.0.55",
     "lucide-react": "^0.125.0",
+    "multiparty": "^4.2.3",
+    "next": "^13.2.4",
+    "next-auth": "^4.21.0",
     "openai": "^3.2.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-markdown": "^8.0.5",
-    "tailwind-merge": "^1.10.0"
+    "superjson": "1.12.2",
+    "tailwind-merge": "^1.10.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/node": "^18.15.5",
@@ -51,8 +53,8 @@
     "prettier-plugin-tailwindcss": "^0.2.6",
     "prisma": "^4.11.0",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5.0.2",
-    "tsx": "^3.12.3"
+    "tsx": "^3.12.3",
+    "typescript": "^5.0.2"
   },
   "ct3aMetadata": {
     "initVersion": "7.12.1"
